@@ -10,8 +10,8 @@ Nothing of the art is in this repository, a release or CI: the Builder downloads
 
 ## Choosing them
 
-- Desktop Builder: tick **Black 2 / White 2 animated Pokémon in battle** (it unticks HeartGold's, and HeartGold's
-  unticks it).
+- Desktop Builder: choose **Black 2 / White 2 animated Pokémon** in **Battle sprites** (the same row offers FireRed's own
+  and HeartGold's, so the window keeps its height).
 - Command line: `firered3ds-builder build --rom ROM --bw2-sprites` (it cannot be given with `--gen4-sprites`).
 - Web Builder: the **Black 2 / White 2 animated Pokémon** switch.
 

@@ -16,12 +16,21 @@ from tkinter import filedialog, messagebox, ttk
 from .gui_service import BuildCancelled, build_private_pack, describe_error
 
 
+
 class BuilderWindow(tk.Tk):
+    # The Builder's choice of battle sprites, in the order of gen4_sprites.BATTLE_SPRITES: FireRed's, HeartGold's, Black 2 /
+    # White 2's (both optional downloads).
+    BATTLE_SPRITES = (
+        "FireRed's own",
+        "HeartGold sprites and icons: Pokémon, trainers and your own back (needs internet: about 1,300 small files)",
+        "Black 2 / White 2 animated Pokémon in battle and evolution (needs internet: about 1,900 files, 68 MB)",
+    )
+
     def __init__(self) -> None:
         super().__init__()
         self.title("Twin Embers — Data Pack Builder")
-        self.geometry("860x840")
-        self.minsize(760, 800)
+        self.geometry("860x760")
+        self.minsize(760, 720)
         self.configure(background="#fff6e8")
         self._events: queue.Queue = queue.Queue()
         self._cancel = threading.Event()
@@ -122,23 +131,20 @@ class BuilderWindow(tk.Tk):
         build_card = self._card(body, 2)
         ttk.Label(build_card, text="03   BUILD & VERIFY",
                   style="Step.TLabel").grid(row=0, column=0, sticky="w")
-        self.gen4_check = ttk.Checkbutton(
-            build_card, variable=self.gen4,
-            text="HeartGold sprites and icons: Pokémon, trainers and your own back "
-                 "(optional, needs internet: about 1,300 small files from GitHub, checked one by one)")
-        self.gen4_check.grid(row=6, column=0, sticky="w", pady=(10, 0))
-        # The other choice of battle sprites: one or the other (or neither, FireRed's own), never both.
-        self.bw2_check = ttk.Checkbutton(
-            build_card, variable=self.bw2,
-            text="Black 2 / White 2 animated Pokémon in battle, in place of HeartGold's (optional, needs internet: 68 MB)")
-        self.bw2_check.grid(row=7, column=0, sticky="w", pady=(4, 0))
-        self.gen4_check.configure(command=lambda: self.gen4.get() and self.bw2.set(False))
-        self.bw2_check.configure(command=lambda: self.bw2.get() and self.gen4.set(False))
+        # The battle sprites, one row like each option: FireRed's own, HeartGold's or Black 2 / White 2's (never two).
+        battle_row = ttk.Frame(build_card, style="Card.TFrame")
+        battle_row.grid(row=6, column=0, sticky="w", pady=(10, 0))
+        ttk.Label(battle_row, text="Battle sprites:", style="Status.TLabel").grid(row=0, column=0, sticky="w")
+        self.battle_choice = tk.StringVar(value=self.BATTLE_SPRITES[0])
+        self.gen4_check = ttk.Combobox(battle_row, textvariable=self.battle_choice, values=self.BATTLE_SPRITES,
+                                       state="readonly", width=92)
+        self.gen4_check.grid(row=0, column=1, sticky="w", padx=(8, 0))
+        self.gen4_check.bind("<<ComboboxSelected>>", self._battle_sprites)
         self.npcs_check = ttk.Checkbutton(
             build_card, variable=self.npcs,
             text="New people on the map: 74 characters redrawn in DS style, by Facets and its artists "
                  "(optional, needs internet)")
-        self.npcs_check.grid(row=8, column=0, sticky="w", pady=(4, 0))
+        self.npcs_check.grid(row=7, column=0, sticky="w", pady=(4, 0))
         self.followers_check = ttk.Checkbutton(
             build_card, variable=self.followers,
             text="HeartGold overworld sprites: your first Pokémon follows you and visible wild Pokémon can appear "
@@ -279,14 +285,21 @@ class BuilderWindow(tk.Tk):
             self.pack_path.set(str(Path(root) / "3ds" / "twinembers" / "twinembers.pak"))
             self._create_dirs = True
 
+    def _battle_sprites(self, event=None) -> None:
+        """The battle sprites chosen: HeartGold's (self.gen4), Black 2 / White 2's (self.bw2) or FireRed's (neither)."""
+        choice = self.battle_choice.get()
+        self.gen4.set(choice == self.BATTLE_SPRITES[1])
+        self.bw2.set(choice == self.BATTLE_SPRITES[2])
+
     def _set_busy(self, busy: bool) -> None:
         self._busy = busy
         state = "disabled" if busy else "normal"
         for widget in (self.rom_entry, self.pack_entry, self.rom_browse,
                        self.pack_browse, self.sd_browse,
-                       self.build_button, self.gen4_check, self.bw2_check, self.npcs_check,
+                       self.build_button, self.npcs_check,
                        self.followers_check, self.hd_check, self.looks_check):
             widget.configure(state=state)
+        self.gen4_check.configure(state="disabled" if busy else "readonly")
         self.cancel_button.configure(state="normal" if busy else "disabled")
         if busy:
             self.indicator.grid()

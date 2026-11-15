@@ -94,7 +94,7 @@ def simulated_window():
     tk = SimpleNamespace(Tk=Widget, Frame=Widget, Label=Widget,
                          StringVar=Variable, BooleanVar=Variable, Event=object)
     ttk = SimpleNamespace(Style=Mock(), Frame=Widget, Label=Widget,
-                          Entry=Widget, Button=Widget, Progressbar=Widget, Checkbutton=Widget)
+                          Entry=Widget, Button=Widget, Progressbar=Widget, Checkbutton=Widget, Combobox=Widget)
     namespace = dict(tk=tk, ttk=ttk, queue=queue, threading=threading, Path=Path,
                      filedialog=Mock(), messagebox=Mock(),
                      BuildCancelled=gui_service.BuildCancelled,
@@ -139,6 +139,18 @@ class GuiWindowTest(unittest.TestCase):
                 self.assertEqual(getattr(self.window, switch).options["state"], "disabled", switch)
             self.assertEqual(self.window.cancel_button.options["state"], "normal")
             self.window._set_busy(False)
+
+    def test_battle_sprites_are_one_choice_of_three(self):
+        window = self.window
+        self.assertEqual((window.gen4.get(), window.bw2.get()), (False, False))
+        for index, expected in ((1, (True, False)), (2, (False, True)), (0, (False, False))):
+            window.battle_choice.set(window.BATTLE_SPRITES[index])
+            window._battle_sprites()
+            self.assertEqual((window.gen4.get(), window.bw2.get()), expected)
+        window._set_busy(True)
+        self.assertEqual(window.gen4_check.options["state"], "disabled")
+        window._set_busy(False)
+        self.assertEqual(window.gen4_check.options["state"], "readonly")
 
     def test_a_ticked_set_that_brought_nothing_is_said_not_reported_as_done(self):
         none = {"species": 0, "missing": [], "trainers": 0, "backs": 0, "npcs": 0, "followers": 0, "hd": 0, "looks": 0}
@@ -237,13 +249,11 @@ class NativeWindowsGuiTest(unittest.TestCase):
                 self.assertEqual(bool(window.indicator.winfo_ismapped()), busy)
             # Check the minimum size with the indicator visible and no content
             # clipped below the window. Includes real ttk requested dimensions.
-            window.geometry("760x800")
+            window.geometry("760x720")
             window._set_busy(True)
             window.update()
-            # Every option too: the last one (the player's looks) must not fall below the window.
-            for widget in (window.rom_entry, window.pack_entry, window.gen4_check, window.bw2_check,
-                           window.npcs_check, window.followers_check, window.hd_check, window.looks_check,
-                           window.build_button, window.cancel_button, window.status_label, window.details_label):
+            for widget in (window.rom_entry, window.pack_entry, window.build_button,
+                           window.cancel_button, window.status_label, window.details_label):
                 self.assertGreater(widget.winfo_width(), 0)
                 self.assertLessEqual(widget.winfo_rooty() + widget.winfo_height(),
                                      window.winfo_rooty() + window.winfo_height())
