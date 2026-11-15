@@ -4,6 +4,14 @@ Twin Embers is a port of Pokémon FireRed (pret/pokefirered) to the Nintendo 3DS
 
 ## Unreleased
 
+### Added
+
+- **Black 2 / White 2 animated Pokémon (optional).** Every Builder (the desktop app, the command line `--bw2-sprites` and the web page) offers them as the other choice of battle sprites, in place of HeartGold's: the Pokémon move in battle and in the evolution scene with Generation V's animations, front, back, shiny, females' own pictures, Unown's letters and Castform's forms; they stand still while asleep or frozen. The Summary, Pokédex and PC show the first picture. Downloaded from PokeAPI/sprites on GitHub and checked file by file; Spinda keeps FireRed's picture. See [docs/BW2-SPRITES.md](docs/BW2-SPRITES.md).
+
+### Fixed
+
+- A battler's or the evolving Pokémon's new picture is drawn only on the sprite made for it, never on a sprite id another screen reuses afterwards.
+
 ### Removed
 
 - Removed the optional Facets battle backgrounds from both Builders (the desktop app and command line `--battle-backgrounds`, and the web page's switch). The optional HD battle scenes are unchanged. A data pack made earlier with them keeps working.

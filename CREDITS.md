@@ -16,6 +16,12 @@
   in `gen4_sources.py`, verified by size and SHA-256, and are not stored in this
   repository. The artwork belongs to Nintendo, Game Freak and Creatures; credit is
   not a license grant.
+- **PokeAPI/sprites contributors** (https://github.com/PokeAPI/sprites) — the optional Black 2 / White 2 animated
+  battle sprites (Generation V's animations, which Black 2 and White 2 show for national dex 1-386) are downloaded by
+  the user's Builder from it at the commit pinned in `gen5_sources.py`, verified by size and SHA-256, and are not
+  stored in this repository. The artwork belongs to Nintendo, Game Freak and Creatures; credit is not a license grant.
+  The Builder's support for them, by **lordMagmoon** with disclosed AI assistance (Claude), follows the HeartGold
+  sprites' path.
 - **Fan-made HeartGold-style player backs** — Leaf's by `setogabes` (Discord),
   Red's from the Battle Art Voxel Fork collection
   (https://github.com/absol89/DramaticShapeVoxelMod), both as bundled in
