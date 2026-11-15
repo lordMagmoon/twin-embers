@@ -191,8 +191,10 @@ static void AnimPlace(Anim *anim, const void *firePic, bool back)
     anim->scale = CTR_GEN4_SCALE;
     if (back && fire && anim->feet >= anim->top)
     {
+        /* Whole screen pixels only, one or two to a picture pixel (whichever brings it nearer FireRed's height): a scale
+         * in between would draw some picture pixels one screen pixel wide and others two. */
         float k = (float)(bottom - top + 1) / (float)(anim->feet - anim->top + 1);
-        anim->scale = k < CTR_GEN4_SCALE ? CTR_GEN4_SCALE : k > 2 * CTR_GEN4_SCALE ? 2 * CTR_GEN4_SCALE : k;
+        anim->scale = k >= 1.5f * CTR_GEN4_SCALE ? 2 * CTR_GEN4_SCALE : CTR_GEN4_SCALE;
     }
     if (!fire)
     {

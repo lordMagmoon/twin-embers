@@ -39,7 +39,8 @@ send-out, Transform, Castform's weather, the evolution scene), before the ball o
 `CtrGen4_Load` takes Black 2 / White 2's entry first, then HeartGold's; the compositor draws it exactly as it draws
 HeartGold's picture (the sprite's position, affine matrix, palette slot, blending and fades), the frame chosen by
 `CtrGen4_Tick`, once a game frame. A front picture is 1:1 on the screen, as HeartGold's; a back one at the height of
-FireRed's back picture, between one and two screen pixels a picture pixel (Black and White show their backs larger).
+FireRed's back picture, one or two screen pixels a picture pixel, never a scale in between that would draw
+some picture pixels wider than others (Black and White show their backs larger).
 The picture stands on FireRed's picture's feet and middle.
 
 - The animation stands still while the Pokémon sleeps or is frozen, and stops as it faints (the rows FireRed erases

@@ -389,6 +389,16 @@ static void TestGen5(void)
             tall[((y / 8) * 8 + 3) * 32 + (y % 8) * 4] = 0x01;
         assert(CtrGen4_Load(2, 25, true, false, false, tall, palette));
         assert(sMatch(0x300 | (2 << 12), &obj) && Near(obj.scale, 2.0f / 1.5f));
+        /* 18 rows of FireRed for 16 of BW: 1.69 screen pixels a picture pixel, two; 17 rows (1.59) still two; 15 rows
+         * (1.41) one. Never a scale in between. */
+        for (unsigned rows = 15; rows <= 18; ++rows)
+        {
+            memset(tall, 0, sizeof(tall));
+            for (unsigned y = 60 - rows; y < 60; ++y)
+                tall[((y / 8) * 8 + 3) * 32 + (y % 8) * 4] = 0x01;
+            assert(CtrGen4_Load(2, 25, true, false, false, tall, palette) && sMatch(0x300 | (2 << 12), &obj));
+            assert(Near(obj.scale, (rows * 1.5f / 16 >= 1.5f ? 2.0f : 1.0f) / 1.5f));
+        }
     }
     /* The female's own entry when it has one; the species' when it has not. */
     sGen5Female = "graphics/gen5/front/025_f.bin";

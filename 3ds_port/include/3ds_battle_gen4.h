@@ -119,7 +119,7 @@ int CtrGen4_SpriteOam(unsigned battler);
 /* Black 2 / White 2's animated pictures (graphics/gen5/front/ and back/, the Builder's other choice of battle sprites,
  * builder/firered3ds_builder/gen5_sprites.py has the layout). CtrGen4_Load takes a battler's from there first, then
  * HeartGold's: the picture is drawn the same way, its frames changing with CtrGen4_Tick. A front picture is shown 1:1 on
- * the screen as HeartGold's; a back one at the height of FireRed's back picture, between one and two times (Black and
+ * the screen as HeartGold's; a back one at the height of FireRed's back picture, one or two screen pixels a picture pixel (Black and
  * White show their backs larger). Outside battle (CtrGen4_Picture64, _Picture80, _Palette) a species without HeartGold's
  * entry shows its animation's first picture. */
 #define CTR_GEN5_TILES_MAX 20

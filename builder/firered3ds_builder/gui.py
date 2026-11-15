@@ -20,8 +20,8 @@ class BuilderWindow(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
         self.title("Twin Embers — Data Pack Builder")
-        self.geometry("860x760")
-        self.minsize(760, 720)
+        self.geometry("860x820")
+        self.minsize(760, 780)
         self.configure(background="#fff6e8")
         self._events: queue.Queue = queue.Queue()
         self._cancel = threading.Event()

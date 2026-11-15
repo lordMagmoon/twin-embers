@@ -237,11 +237,13 @@ class NativeWindowsGuiTest(unittest.TestCase):
                 self.assertEqual(bool(window.indicator.winfo_ismapped()), busy)
             # Check the minimum size with the indicator visible and no content
             # clipped below the window. Includes real ttk requested dimensions.
-            window.geometry("760x720")
+            window.geometry("760x780")
             window._set_busy(True)
             window.update()
-            for widget in (window.rom_entry, window.pack_entry, window.build_button,
-                           window.cancel_button, window.status_label, window.details_label):
+            # Every option too: the last one (the player's looks) must not fall below the window.
+            for widget in (window.rom_entry, window.pack_entry, window.gen4_check, window.bw2_check,
+                           window.npcs_check, window.followers_check, window.hd_check, window.looks_check,
+                           window.build_button, window.cancel_button, window.status_label, window.details_label):
                 self.assertGreater(widget.winfo_width(), 0)
                 self.assertLessEqual(widget.winfo_rooty() + widget.winfo_height(),
                                      window.winfo_rooty() + window.winfo_height())
