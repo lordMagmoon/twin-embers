@@ -20,8 +20,8 @@ class BuilderWindow(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
         self.title("Twin Embers — Data Pack Builder")
-        self.geometry("860x820")
-        self.minsize(760, 780)
+        self.geometry("860x840")
+        self.minsize(760, 800)
         self.configure(background="#fff6e8")
         self._events: queue.Queue = queue.Queue()
         self._cancel = threading.Event()
@@ -130,8 +130,7 @@ class BuilderWindow(tk.Tk):
         # The other choice of battle sprites: one or the other (or neither, FireRed's own), never both.
         self.bw2_check = ttk.Checkbutton(
             build_card, variable=self.bw2,
-            text="Black 2 / White 2 animated Pokémon in battle, in place of HeartGold's "
-                 "(optional, needs internet: about 1,900 files, 68 MB, from GitHub, checked one by one)")
+            text="Black 2 / White 2 animated Pokémon in battle, in place of HeartGold's (optional, needs internet: 68 MB)")
         self.bw2_check.grid(row=7, column=0, sticky="w", pady=(4, 0))
         self.gen4_check.configure(command=lambda: self.gen4.get() and self.bw2.set(False))
         self.bw2_check.configure(command=lambda: self.bw2.get() and self.gen4.set(False))

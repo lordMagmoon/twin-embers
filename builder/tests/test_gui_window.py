@@ -237,7 +237,7 @@ class NativeWindowsGuiTest(unittest.TestCase):
                 self.assertEqual(bool(window.indicator.winfo_ismapped()), busy)
             # Check the minimum size with the indicator visible and no content
             # clipped below the window. Includes real ttk requested dimensions.
-            window.geometry("760x780")
+            window.geometry("760x800")
             window._set_busy(True)
             window.update()
             # Every option too: the last one (the player's looks) must not fall below the window.
