@@ -308,6 +308,11 @@ __attribute__((weak)) bool CtrNpc_Match(unsigned attr0, unsigned attr1, unsigned
     return false;
 }
 
+/* The executables without 3ds_battle_gen4.c have no battle animation to move on. */
+__attribute__((weak)) void CtrGen4_Tick(void)
+{
+}
+
 void CtrVideo_SetNpcPalette(unsigned slot, const uint16_t *colours)
 {
     unsigned id = NPC_BANK0 + slot, changed = 0;
@@ -3373,8 +3378,9 @@ static void DrawObjects(unsigned priority, bool effects)
          * 64x64 box's centre, at its own scale k (GBA pixels per picture pixel), under the sprite's own matrix. */
         struct CtrGen4Obj gen4;
         gen4.first = 0;             /* a battler's picture starts its slot; a field NPC's frame has its own place */
+        gen4.rows = 0;              /* square, but for a Black 2 / White 2 picture (columns x rows) */
         bool hg = sBattle && sObjOverride && !color256 && width == 64 && height == 64 && sObjOverride(attr2, &gen4)
-               && gen4.slot < GEN4_SLOTS && gen4.side * gen4.side * 32 <= GEN4_SLOT;
+               && gen4.slot < GEN4_SLOTS && gen4.side * (gen4.rows ? gen4.rows : gen4.side) * 32 <= GEN4_SLOT;
         /* A person of the field with a picture in the pack (3ds_battle_gen4.h): drawn the same way, on a palette of its own. */
         bool npc = !hg && !sBattle && sFieldLayers && !color256 && width <= 64 && height <= 64
                 && CtrNpc_Match(attr0, attr1, attr2, width, height, &gen4) && gen4.slot < GEN4_SLOTS && gen4.bank < NPC_BANKS;
@@ -3400,10 +3406,12 @@ static void DrawObjects(unsigned priority, bool effects)
             Mtx_Identity(&matrix);
             if (hg && !affine)
             {
-                /* Unrotated, the picture is drawn 1:1 on the screen at a whole pixel (k is 1 / CTR_BATTLE_ZOOM): no
-                 * picture pixel is split between two screen pixels. */
-                matrix.r[0] = FVec4_New(1, 0, 0, roundf((x + CTR_VIEW_X + sLayerShift + boxW / 2.0f) * sZoom + sOffX - cx));
-                matrix.r[1] = FVec4_New(0, 1, 0, roundf((y + CTR_VIEW_Y + boxH / 2.0f) * sZoom + sOffY - cy));
+                /* Unrotated, the picture is drawn at a whole pixel: 1:1 on the screen (k is 1 / CTR_BATTLE_ZOOM), no
+                 * picture pixel split between two screen pixels; a Black 2 / White 2 back k * sZoom screen pixels a
+                 * picture pixel. */
+                float pictureScale = k * sZoom;
+                matrix.r[0] = FVec4_New(pictureScale, 0, 0, roundf((x + CTR_VIEW_X + sLayerShift + boxW / 2.0f) * sZoom + sOffX - cx * pictureScale));
+                matrix.r[1] = FVec4_New(0, pictureScale, 0, roundf((y + CTR_VIEW_Y + boxH / 2.0f) * sZoom + sOffY - cy * pictureScale));
                 C2D_ViewRestore(&matrix);
             }
             else
@@ -3422,11 +3430,12 @@ static void DrawObjects(unsigned priority, bool effects)
                 HudNpcTint(&fade, attr2 >> 12, gen4.silhouette != 0, &npcTint);
                 sTint = npcTint;
             }
-            for (unsigned ty = 0; ty < gen4.side; ++ty)
+            unsigned rows = gen4.rows ? gen4.rows : gen4.side;
+            for (unsigned ty = 0; ty < rows; ++ty)
                 for (unsigned tx = 0; tx < gen4.side; ++tx)
                 {
                     unsigned sx = flipX ? gen4.side - 1 - tx : tx;
-                    unsigned sy = flipY ? gen4.side - 1 - ty : ty;
+                    unsigned sy = flipY ? rows - 1 - ty : ty;
                     DrawTile(GEN4_VRAM + gen4.slot * GEN4_SLOT + (gen4.first + sy * gen4.side + sx) * 32,
                              npc ? NPC_BANK0 + gen4.bank : 16 + (attr2 >> 12), false,
                              (int)tx * 8, (int)ty * 8, flipX, flipY);
@@ -5802,6 +5811,7 @@ uint64_t CtrVideo_FrameStartTick(void)
 void CtrVideo_Present(void)
 {
     if (!sMemory.regs) CtrPlatform_Fatal("VIDEO has no logical memory bound");
+    CtrGen4_Tick();             /* the battlers' Black 2 / White 2 animations move on, a frame a game frame */
     if (sHoldTop && !sBottomGpu)
     {
         uint64_t holdWait = CtrPerf_Begin();

@@ -210,15 +210,19 @@ static int Gen4Bottom(const uint8_t *linear)
     return -1;
 }
 
+#include "3ds_battle_gen5_impl.h"
+
 static bool Match(unsigned attr2, CtrGen4Obj *out)
 {
     for (unsigned b = 0; b < BATTLERS; ++b)
     {
-        if (!sBattlers[b].active)
+        if (!sBattlers[b].active && !sAnims[b].active)
             continue;
         int oam = CtrGen4_SpriteOam(b);
         if (oam < 0 || (attr2 & 1023) != ((unsigned)oam & 1023) || (attr2 >> 12) != ((unsigned)oam >> 12))
             continue;
+        if (sAnims[b].active)
+            return AnimMatch(b, out);
         out->slot = b;
         out->tiles = sBattlers[b].tiles;
         out->side = CTR_GEN4_TILES;
@@ -310,7 +314,12 @@ bool CtrGen4_Picture80(unsigned nationalDex, bool back, bool female, uint8_t out
 {
     const uint8_t *entry = Entry(nationalDex);
     if (!entry)
-        return false;
+    {
+        if (!Gen5Still(nationalDex, back, female))
+            return false;
+        memcpy(out, sStill.linear, CTR_GEN4_PICTURE);
+        return true;
+    }
     memcpy(out, Shown(Picture(entry, back, female), nationalDex, back), CTR_GEN4_PICTURE);
     return true;
 }
@@ -318,9 +327,9 @@ bool CtrGen4_Picture80(unsigned nationalDex, bool back, bool female, uint8_t out
 bool CtrGen4_Picture64(unsigned nationalDex, bool back, bool female, uint8_t out[0x800])
 {
     const uint8_t *entry = Entry(nationalDex);
-    if (!entry)
+    if (!entry && !Gen5Still(nationalDex, back, female))
         return false;
-    const uint8_t *linear = Shown(Picture(entry, back, female), nationalDex, back);
+    const uint8_t *linear = entry ? Shown(Picture(entry, back, female), nationalDex, back) : sStill.linear;
     memset(out, 0, 0x800);
     /* Nearest pixel: 64 of the 80 rows and columns, every fifth one left out. */
     for (unsigned y = 0; y < 64; ++y)
@@ -338,7 +347,14 @@ bool CtrGen4_Palette(unsigned nationalDex, bool shiny, uint16_t palette[16])
 {
     const uint8_t *entry = Entry(nationalDex);
     if (!entry)
-        return false;
+    {
+        /* The colours of the picture last asked for, whose indices they match (a female's own has its own), else the
+         * species' front one's. */
+        if (!(sStill.path[0] && sStill.key == nationalDex) && !Gen5Still(nationalDex, false, false))
+            return false;
+        memcpy(palette, sStill.palette[shiny ? 1 : 0], 32);
+        return true;
+    }
     memcpy(palette, entry + (shiny ? 40 : 8), 32);
     return true;
 }
@@ -369,6 +385,12 @@ bool CtrGen4_Load(unsigned battler, unsigned nationalDex, bool back, bool female
     if (battler >= BATTLERS)
         return false;
     sBattlers[battler].active = false;
+    /* Black 2 / White 2's animation when the pack has it, else HeartGold's picture. */
+    if (Gen5Load(battler, nationalDex, back, female, shiny, firePic, palette))
+    {
+        CtrVideo_SetObjOverride(Match);
+        return true;
+    }
     char path[40];
     if (!KeyPath(nationalDex, path, sizeof(path)))
         return false;
@@ -485,6 +507,8 @@ void CtrGen4_DropTrainer(unsigned trainerPic)
 
 bool CtrGen4_GbaPicture(unsigned battler, uint8_t out[0x800])
 {
+    if (battler < BATTLERS && sAnims[battler].active)
+        return AnimGbaPicture(battler, out);
     if (battler >= BATTLERS || !sBattlers[battler].active)
         return false;
     const uint8_t *tiles = sBattlers[battler].tiles;
@@ -575,7 +599,10 @@ const uint16_t *CtrGen4_IconPaletteData(unsigned index)
 void CtrGen4_Drop(unsigned battler)
 {
     if (battler < BATTLERS)
+    {
         sBattlers[battler].active = false;
+        AnimFree(&sAnims[battler]);
+    }
 }
 
 void CtrGen4_DropAll(void)
@@ -584,11 +611,17 @@ void CtrGen4_DropAll(void)
     {
         sBattlers[b].active = false;
         sTrainers[b].active = false;
+        AnimFree(&sAnims[b]);
     }
 }
 
 void CtrGen4_EraseFrom(unsigned battler, unsigned boxRow)
 {
+    if (battler < BATTLERS && sAnims[battler].active)
+    {
+        AnimEraseFrom(battler, boxRow);
+        return;
+    }
     if (battler >= BATTLERS || !sBattlers[battler].active)
         return;
     float row = sBattlers[battler].pivotY + ((float)boxRow - 32) / CTR_GEN4_SCALE;

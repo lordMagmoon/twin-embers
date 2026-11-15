@@ -189,7 +189,7 @@ GAME_NATIVE_OBJS := build/main_game_native.o $(GAME_PLATFORM_OBJS)
 GAME_NATIVE_OBJS += build/3ds_assets.o build/3ds_asset_memory.o build/3ds_data.o build/3ds_pak.o build/3ds_data_error.o
 # HeartGold's battle sprites from the pack's optional entries, drawn by the compositor (battle_gfx_sfx_util.c).
 GAME_NATIVE_OBJS += build/3ds_battle_gen4.o
-build/3ds_battle_gen4.o: include/3ds_battle_gen4.h include/3ds_data.h
+build/3ds_battle_gen4.o: include/3ds_battle_gen4.h include/3ds_data.h src/3ds_battle_gen5_impl.h
 # The port's own battle healthboxes (battle_interface.c, recipe 0207), drawn by the compositor.
 GAME_NATIVE_OBJS += build/3ds_battle_hud.o
 build/3ds_battle_hud.o: include/3ds_battle_hud.h include/3ds_video.h
@@ -473,7 +473,7 @@ build/type_chart_test.exe: tests/type_chart_test.c include/3ds_type_chart.h
 	@mkdir -p build
 	gcc -std=c11 -O2 -Wall -Wextra -Werror -Iinclude tests/type_chart_test.c -o $@
 
-build/battle_gen4_test.exe: tests/battle_gen4_test.c src/3ds_battle_gen4.c include/3ds_battle_gen4.h include/3ds_data.h include/3ds_log.h include/3ds_video.h
+build/battle_gen4_test.exe: tests/battle_gen4_test.c src/3ds_battle_gen4.c src/3ds_battle_gen5_impl.h include/3ds_battle_gen4.h include/3ds_data.h include/3ds_log.h include/3ds_video.h
 	@mkdir -p build
 	gcc -std=c11 -O2 -Wall -Wextra -Werror -Iinclude tests/battle_gen4_test.c src/3ds_battle_gen4.c -o $@
 

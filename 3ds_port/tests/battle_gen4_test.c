@@ -71,8 +71,36 @@ static unsigned sHdnFileSize = CTR_BACKDROP_HEADER + CTR_BACKDROP_W * CTR_BACKDR
 unsigned CtrBattleBg_Map(void) { return sMapKey; }
 bool CtrBattleBg_IsNight(void) { return sNight; }
 
+/* Black 2 / White 2's entries (graphics/gen5/): one, served for the path sGen5Path or the female sGen5Female. */
+static uint8_t sGen5[2048];
+static uint32_t sGen5Size;
+static const char *sGen5Path = "", *sGen5Female = "";
+static unsigned sGen5Loads;
+static bool sPaused;
+
+bool CtrGen4_Paused(unsigned battler)
+{
+    (void)battler;
+    return sPaused;
+}
+
 void *CtrData_Load(const char *path, uint32_t *outSize)
 {
+    if (strncmp(path, "graphics/gen5/", 14) == 0)
+    {
+        uint8_t *copy;
+
+        snprintf(sAsked, sizeof(sAsked), "%s", path);
+        if (strcmp(path, sGen5Path) && strcmp(path, sGen5Female))
+            return NULL;
+        ++sGen5Loads;
+        copy = malloc(sGen5Size);
+        memcpy(copy, sGen5, sGen5Size);
+        if (strcmp(path, sGen5Female) == 0)
+            copy[8 + 2] = 0x77;              /* the female's own colours: its palette's colour 1 */
+        *outSize = sGen5Size;
+        return copy;
+    }
     if (strcmp(path, "graphics/gen4/hd/map.bin") == 0)
     {
         void *copy = malloc(sizeof(sHdMapTable));
@@ -154,6 +182,11 @@ const char *CtrSettings_Look(int slot) { return sLook[slot]; }
 
 bool CtrData_Size(const char *path, uint32_t *outSize)
 {
+    if (strncmp(path, "graphics/gen5/", 14) == 0)
+    {
+        *outSize = sGen5Size;
+        return sGen5Size && (strcmp(path, sGen5Path) == 0 || strcmp(path, sGen5Female) == 0);
+    }
     ++sSizeAsked;
     if (strncmp(path, "graphics/gen4/look/", 19) == 0)
     {
@@ -242,6 +275,178 @@ static uint8_t PixelByte(const CtrGen4Obj *obj, unsigned x, unsigned y)
 }
 
 #define BG_CHAR 16384
+
+/* A G5A1 entry of 2x3 tiles (16x24): two images, the first filled with colour 1 over x 4-11, rows 4-19, the second
+ * with colour 2; steps image 0 for 3 ticks, image 1 for 2. Palettes: normal 0x100 + i, shiny 0x200 + i. */
+static void MakeGen5(void)
+{
+    uint8_t images[2][6 * 32];
+    unsigned at = 0;
+
+    memset(sGen5, 0, sizeof(sGen5));
+    memset(images, 0, sizeof(images));
+    for (unsigned image = 0; image < 2; ++image)
+        for (unsigned y = 4; y <= 19; ++y)
+            for (unsigned x = 4; x <= 11; ++x)
+                images[image][((y / 8) * 2 + x / 8) * 32 + (y % 8) * 4 + (x % 8) / 2] |= (uint8_t)((image + 1) << ((x & 1) * 4));
+    memcpy(sGen5, "G5A1", 4);
+    sGen5[4] = 2;
+    sGen5[5] = 3;
+    sGen5[6] = 2;
+    for (unsigned i = 0; i < 16; ++i)
+    {
+        sGen5[8 + i * 2] = (uint8_t)i;
+        sGen5[9 + i * 2] = 1;
+        sGen5[40 + i * 2] = (uint8_t)i;
+        sGen5[41 + i * 2] = 2;
+    }
+    sGen5[72] = 2;                      /* steps */
+    sGen5[74] = 16;                     /* anchorX2: columns 4-11 */
+    sGen5[76] = 19;                     /* feet */
+    sGen5[78] = 4;                      /* top */
+    sGen5[80] = 0, sGen5[82] = 3;       /* image 0, 3 ticks */
+    sGen5[84] = 1, sGen5[86] = 2;       /* image 1, 2 ticks */
+    /* Offsets after the table (3 x u32 at 88), then each image as PackBits literals of 96 bytes. */
+    unsigned start = 88 + 12;
+    for (unsigned image = 0; image < 2; ++image)
+    {
+        sGen5[88 + image * 4] = (uint8_t)at;
+        sGen5[89 + image * 4] = (uint8_t)(at >> 8);
+        for (unsigned part = 0; part < 2; ++part)
+        {
+            sGen5[start + at++] = 95;
+            memcpy(sGen5 + start + at, images[image] + part * 96, 96);
+            at += 96;
+        }
+    }
+    sGen5[88 + 8] = (uint8_t)at;
+    sGen5[89 + 8] = (uint8_t)(at >> 8);
+    sGen5Size = start + at;
+}
+
+static unsigned ObjPixel(const CtrGen4Obj *obj, unsigned x, unsigned y)
+{
+    uint8_t pair = PixelByte(obj, x, y);
+    return (x & 1) ? pair >> 4 : pair & 15;
+}
+
+static void TestGen5(void)
+{
+    uint8_t fire[0x800];
+    uint16_t palette[16];
+    CtrGen4Obj obj;
+
+    CtrGen4_DropAll();
+    sEntrySize = 0;
+    MakeGen5();
+    sGen5Path = "graphics/gen5/front/025.bin";
+    FirePic(fire, 60);                  /* one pixel at (27, 60) */
+    assert(CtrGen4_Load(2, 25, false, false, false, fire, palette));
+    assert(strcmp(sAsked, "graphics/gen5/front/025.bin") == 0 && palette[1] == 0x101 && palette[15] == 0x10f);
+    sOam[2] = 0x300 | (2 << 12);
+    obj.rows = 0;
+    assert(sMatch(0x300 | (2 << 12), &obj));
+    /* 2x3 tiles, 1:1 on the screen, the box's middle and feet on FireRed's pixel: x 8 - (27.5 - 32) * 1.5 = 14.75,
+     * y 20 - (61 - 32) * 1.5 = -23.5. */
+    assert(obj.slot == 2 && obj.side == 2 && obj.rows == 3 && Near(obj.scale, 1.0f / 1.5f));
+    assert(Near(obj.pivotX, 14.75f) && Near(obj.pivotY, -23.5f));
+    assert(ObjPixel(&obj, 4, 4) == 1 && ObjPixel(&obj, 3, 4) == 0 && ObjPixel(&obj, 11, 19) == 1);
+    /* The steps: 3 ticks of image 0, 2 of image 1, then image 0 again; asleep or frozen, it stands still. */
+    CtrGen4_Tick();
+    CtrGen4_Tick();
+    assert(sMatch(0x300 | (2 << 12), &obj) && ObjPixel(&obj, 4, 4) == 1);
+    CtrGen4_Tick();
+    assert(sMatch(0x300 | (2 << 12), &obj) && ObjPixel(&obj, 4, 4) == 2);
+    sPaused = true;
+    for (int i = 0; i < 10; ++i)
+        CtrGen4_Tick();
+    assert(sMatch(0x300 | (2 << 12), &obj) && ObjPixel(&obj, 4, 4) == 2);
+    sPaused = false;
+    CtrGen4_Tick();
+    CtrGen4_Tick();
+    assert(sMatch(0x300 | (2 << 12), &obj) && ObjPixel(&obj, 4, 4) == 1);
+    /* On a background, as FireRed's 64x64: its feet on FireRed's row 60, nothing below. */
+    {
+        uint8_t bg[0x800];
+        assert(CtrGen4_GbaPicture(2, bg));
+        assert(FireNibble(bg, 28, 60) == 1 && FireNibble(bg, 28, 61) == 0 && FireNibble(bg, 0, 0) == 0);
+    }
+    /* Fainting: the image stops, erased from box row 56 down (picture row -23.5 + 24 * 1.5 = 12.5, so 13). */
+    CtrGen4_EraseFrom(2, 56);
+    assert(sMatch(0x300 | (2 << 12), &obj) && ObjPixel(&obj, 4, 12) == 1 && ObjPixel(&obj, 4, 13) == 0);
+    for (int i = 0; i < 5; ++i)
+        CtrGen4_Tick();
+    assert(sMatch(0x300 | (2 << 12), &obj) && ObjPixel(&obj, 4, 12) == 1);
+    /* Shiny colours; a back as tall as FireRed's (a one-pixel FireRed back: the smallest scale, 1:1). */
+    sGen5Path = "graphics/gen5/back/025.bin";
+    assert(CtrGen4_Load(2, 25, true, false, true, fire, palette) && palette[1] == 0x201);
+    assert(sMatch(0x300 | (2 << 12), &obj) && Near(obj.scale, 1.0f / 1.5f));
+    {
+        /* FireRed's back 40 rows tall, 16 of BW: 2.5 GBA pixels a picture pixel, at most two screen pixels. */
+        uint8_t tall[0x800];
+        memset(tall, 0, sizeof(tall));
+        for (unsigned y = 20; y < 60; ++y)
+            tall[((y / 8) * 8 + 3) * 32 + (y % 8) * 4] = 0x01;
+        assert(CtrGen4_Load(2, 25, true, false, false, tall, palette));
+        assert(sMatch(0x300 | (2 << 12), &obj) && Near(obj.scale, 2.0f / 1.5f));
+    }
+    /* The female's own entry when it has one; the species' when it has not. */
+    sGen5Female = "graphics/gen5/front/025_f.bin";
+    sGen5Path = "graphics/gen5/front/025.bin";
+    assert(CtrGen4_Load(2, 25, false, true, false, fire, palette) && palette[1] == 0x177);
+    assert(CtrGen4_Load(2, 25, false, false, false, fire, palette) && palette[1] == 0x101);
+    sGen5Female = "";
+    assert(CtrGen4_Load(2, 25, false, true, false, fire, palette) && palette[1] == 0x101);
+    /* Unown's letters and Castform's weather have their own entries; Spinda and others none. */
+    sGen5Path = "graphics/gen5/front/201_26.bin";
+    assert(CtrGen4_Load(2, CTR_GEN4_KEY(201, 26), false, false, false, fire, palette));
+    assert(!CtrGen4_Load(2, CTR_GEN4_KEY(25, 3), false, false, false, fire, palette));
+    assert(!sMatch(0x300 | (2 << 12), &obj));
+    /* A wrong entry is refused, and the battler then shows FireRed's picture. */
+    MakeGen5();
+    sGen5Path = "graphics/gen5/front/025.bin";
+    sGen5[88 + 8] = 200;
+    assert(!CtrGen4_Load(2, 25, false, false, false, fire, palette));
+    MakeGen5();
+    sGen5[4] = 21;
+    assert(!CtrGen4_Load(2, 25, false, false, false, fire, palette));
+    MakeGen5();
+    sGen5[82] = 0;                      /* a step of no time */
+    assert(!CtrGen4_Load(2, 25, false, false, false, fire, palette));
+    MakeGen5();
+    /* Dropped: nothing matched. */
+    assert(CtrGen4_Load(2, 25, false, false, false, fire, palette));
+    CtrGen4_Drop(2);
+    assert(!sMatch(0x300 | (2 << 12), &obj));
+    sOam[2] = -1;
+    /* Outside battle: the first image whole in an 80x80 picture, its feet on the bottom row and its middle on the
+     * picture's; read once for the same picture, its palette the one of the picture asked for. */
+    {
+        static uint8_t still[CTR_GEN4_PICTURE];
+        uint16_t colours[16];
+        unsigned loads;
+
+        sGen5Female = "graphics/gen5/front/025_f.bin";
+        assert(CtrGen4_Picture80(25, false, true, still));
+        /* Columns 4-11 to 36-43, rows 4-19 to 64-79. */
+        assert((still[79 * 40 + 18] & 15) == 1 && (still[64 * 40 + 18] & 15) == 1 && (still[63 * 40 + 18] & 15) == 0);
+        assert((still[70 * 40 + 17] & 15) == 0 && (still[70 * 40 + 18] & 15) == 1 && (still[70 * 40 + 21] >> 4) == 1);
+        assert(still[70 * 40 + 22] == 0);
+        loads = sGen5Loads;
+        assert(CtrGen4_Palette(25, false, colours) && colours[1] == 0x177 && sGen5Loads == loads);
+        assert(CtrGen4_Picture80(25, false, true, still) && sGen5Loads == loads);
+        assert(CtrGen4_Picture80(25, false, false, still) && sGen5Loads == loads + 1);
+        assert(CtrGen4_Palette(25, true, colours) && colours[1] == 0x201);
+        {
+            uint8_t small[0x800];
+            assert(CtrGen4_Picture64(25, false, false, small));
+            assert(FireNibble(small, 31, 63) == 1 && FireNibble(small, 31, 50) == 0);
+        }
+        assert(!CtrGen4_Picture80(26, false, false, still));
+        sGen5Female = "";
+    }
+    sGen5Size = 0;
+}
 
 int main(void)
 {
@@ -891,6 +1096,7 @@ int main(void)
         CtrGen4_LooksChanged();
     }
 
+    TestGen5();
     puts("battle_gen4_test: ok");
     return 0;
 }

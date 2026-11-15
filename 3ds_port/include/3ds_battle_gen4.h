@@ -104,6 +104,7 @@ typedef struct CtrGen4Obj {
                                      * NPC's frame * side * side, so two people with the same picture who show different
                                      * frames in one screen frame do not share cached tiles (CtrNpc_Match) */
     unsigned side;                  /* tiles to a row and a column: 10 (CTR_GEN4_TILES), 13 for a back */
+    unsigned rows;                  /* tiles to a column when not `side` (a Black 2 / White 2 picture, columns x rows); 0: side */
     float pivotX, pivotY;           /* the picture's point drawn on the 64x64 box's centre */
     float scale;                    /* GBA pixels per picture pixel */
     const uint16_t *unfaded;        /* a field NPC's: the game's unfaded palette buffer, for its fade */
@@ -114,6 +115,19 @@ typedef struct CtrGen4Obj {
 /* Implemented by the game's battle code: the battler sprite's OAM tile number and palette
  * (tile | palette << 12), or -1 without one. */
 int CtrGen4_SpriteOam(unsigned battler);
+
+/* Black 2 / White 2's animated pictures (graphics/gen5/front/ and back/, the Builder's other choice of battle sprites,
+ * builder/firered3ds_builder/gen5_sprites.py has the layout). CtrGen4_Load takes a battler's from there first, then
+ * HeartGold's: the picture is drawn the same way, its frames changing with CtrGen4_Tick. A front picture is shown 1:1 on
+ * the screen as HeartGold's; a back one at the height of FireRed's back picture, between one and two times (Black and
+ * White show their backs larger). Outside battle (CtrGen4_Picture64, _Picture80, _Palette) a species without HeartGold's
+ * entry shows its animation's first picture. */
+#define CTR_GEN5_TILES_MAX 20
+/* Once a frame (3ds_video.c, as it presents one): each battler's animation moves on. */
+void CtrGen4_Tick(void);
+/* Implemented by the game's battle code (a weak default says no): whether the battler's animation stands still (asleep
+ * or frozen). */
+bool CtrGen4_Paused(unsigned battler);
 
 /* The battle backgrounds (battle_bg.c, recipe 0210): graphics/gen4/bg/NNN.bin, NNN being FireRed's BATTLE_TERRAIN_*,
  * a 240x112 scene as VRAM-ready data (the Builder's convert_bg). `part` 0: the tiles into the 16 KiB char block at
