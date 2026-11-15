@@ -23,7 +23,7 @@ const UNISTORE_URL = new URL('twinembers.unistore', location.href).href;
 const $ = (id) => document.getElementById(id);
 const ui = {
   romInput: $('rom-input'), romButton: $('rom-button'), romPill: $('rom-pill'),
-  gen4: $('gen4-toggle'), npcs: $('npcs-toggle'),
+  gen4: $('gen4-toggle'), bw2: $('bw2-toggle'), npcs: $('npcs-toggle'),
   followers: $('followers-toggle'), hd: $('hd-toggle'), looks: $('looks-toggle'),
   build: $('build-button'),
   progress: $('progress'), fill: $('progress-fill'), status: $('status'),
@@ -31,6 +31,10 @@ const ui = {
 };
 
 const state = { ready: false, busy: false, rom: null, romOk: false, pakUrl: null };
+
+// The battle sprites are HeartGold's or Black 2 / White 2's (or neither, FireRed's own): ticking one unticks the other.
+ui.gen4.addEventListener('change', () => { if (ui.gen4.checked) ui.bw2.checked = false; });
+ui.bw2.addEventListener('change', () => { if (ui.bw2.checked) ui.gen4.checked = false; });
 
 function setPill(text, kind) {
   ui.romPill.textContent = text;
@@ -40,7 +44,7 @@ function setPill(text, kind) {
 function refresh() {
   ui.build.disabled = !(state.ready && state.romOk && !state.busy);
   ui.romInput.disabled = state.busy;
-  ui.gen4.disabled = ui.npcs.disabled = ui.followers.disabled = ui.hd.disabled = ui.looks.disabled = state.busy;
+  ui.gen4.disabled = ui.bw2.disabled = ui.npcs.disabled = ui.followers.disabled = ui.hd.disabled = ui.looks.disabled = state.busy;
   ui.romButton.setAttribute('aria-disabled', state.busy ? 'true' : 'false');
 }
 
@@ -169,6 +173,14 @@ function finish(pak, info) {
           `, ${info.gen4.missing.length} con las imágenes de Rojo Fuego (falló la descarga)`,
           `, ${info.gen4.missing.length} mit den Bildern aus Feuerrot (Download fehlgeschlagen)`) : ''));
     }
+    if (info.gen4.bw2 && (info.gen4.bw2.species || info.gen4.bw2.missing.length)) {
+      const bw2 = info.gen4.bw2;
+      lines.push(L(`Black 2 / White 2 battle sprites: ${bw2.species} species`, `Sprites de combate de Negro 2 / Blanco 2: ${bw2.species} especies`,
+        `Kampf-Sprites aus Schwarz 2 / Weiß 2: ${bw2.species} Arten`) +
+        (bw2.missing.length ? L(`, ${bw2.missing.length} kept on FireRed's pictures (download failed)`,
+          `, ${bw2.missing.length} con las imágenes de Rojo Fuego (falló la descarga)`,
+          `, ${bw2.missing.length} mit den Bildern aus Feuerrot (Download fehlgeschlagen)`) : ''));
+    }
     if (info.gen4.trainers) lines.push(L('HeartGold trainer pictures: ', 'Imágenes de entrenadores de HeartGold: ', 'HeartGold-Trainerbilder: ') + info.gen4.trainers);
     if (info.gen4.backs) lines.push(L('HeartGold-style player backs: ', 'Espaldas del jugador al estilo HeartGold: ', 'Spielerrücken im HeartGold-Stil: ') + info.gen4.backs);
     if (info.gen4.npcs) lines.push(L(`New people on the map: ${info.gen4.npcs} of 74`, `Gente nueva en el mapa: ${info.gen4.npcs} de 74`,
@@ -186,6 +198,8 @@ function finish(pak, info) {
   const g = info.gen4 || {};
   for (const [box, count, en, es, de] of [
     [ui.gen4, g.species, 'HeartGold battle sprites', 'Sprites de combate de HeartGold', 'HeartGold-Kampf-Sprites'],
+    [ui.bw2, g.bw2 && g.bw2.species, 'Black 2 / White 2 battle sprites', 'Sprites de combate de Negro 2 / Blanco 2',
+      'Kampf-Sprites aus Schwarz 2 / Weiß 2'],
     [ui.npcs, g.npcs, 'New people on the map', 'Gente nueva en el mapa', 'Neue Leute auf der Karte'],
     [ui.followers, g.followers, 'Pokémon that walk behind you', 'Pokémon que andan tras de ti', 'Pokémon, die dir folgen'],
     [ui.hd, g.hd, 'HD battle scenes', 'Escenas de combate HD', 'HD-Kampfszenen'],
@@ -214,7 +228,7 @@ async function startBuild() {
   refresh();
   try {
     const rom = await state.rom.arrayBuffer();
-    worker.postMessage({ type: 'build', rom, gen4: ui.gen4.checked, npcs: ui.npcs.checked,
+    worker.postMessage({ type: 'build', rom, gen4: ui.gen4.checked, bw2: ui.bw2.checked, npcs: ui.npcs.checked,
       followers: ui.followers.checked, hd: ui.hd.checked, looks: ui.looks.checked }, [rom]);
   } catch (error) {
     state.busy = false;

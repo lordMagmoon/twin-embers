@@ -26,8 +26,12 @@ def main() -> None:
     make.add_argument('--alt-looks', action='store_true',
                       help="also download the alternative player looks (Emerald Lens'), for the player to pick in the game; needs internet")
     make.add_argument('--extra-dir', type=Path, help=argparse.SUPPRESS)   # local test files, added as they are
-    make.add_argument('--gen4-sprites', action='store_true',
-                      help='also download HeartGold battle sprites (optional, needs internet)')
+    battle = make.add_mutually_exclusive_group()
+    battle.add_argument('--gen4-sprites', action='store_true',
+                        help='also download HeartGold battle sprites (optional, needs internet)')
+    battle.add_argument('--bw2-sprites', action='store_true',
+                        help="also download Black 2 / White 2's animated battle sprites of the Pokemon, "
+                             "in place of HeartGold's (optional, needs internet)")
     pack = sub.add_parser('verify-pak', help='check every payload of an existing pack')
     pack.add_argument('pak', type=Path)
     pack.add_argument('--abi', type=lambda s: int(s, 16), required=True)
@@ -40,6 +44,7 @@ def main() -> None:
             print(f'ROM verified: {rom.sha1}')
             extra = []
             groups = tuple(group for flag, group in ((args.gen4_sprites, gen4_sprites.GROUP_POKEMON),
+                                                     (args.bw2_sprites, gen4_sprites.GROUP_BW2),
                                                      (args.npc_sprites, gen4_sprites.GROUP_NPC),
                                                      (args.follower_sprites, gen4_sprites.GROUP_FOLLOWER),
                                                      (args.hd_backgrounds, gen4_sprites.GROUP_HD),
@@ -50,6 +55,11 @@ def main() -> None:
                     print(f"HeartGold battle sprites: {info['species']} species "
                           f"({info['downloaded']} files downloaded), {len(info['missing'])} missing, "
                           f"{info['trainers']} trainer pictures, {info['backs']} player backs")
+                if args.bw2_sprites:
+                    bw2 = info['bw2']
+                    print(f"Black 2 / White 2 battle sprites: {bw2['species']} species "
+                          f"({info['downloaded']} files downloaded), {len(bw2['missing'])} missing"
+                          + (f", {len(bw2['failed'])} pictures not converted" if bw2['failed'] else ''))
                 if args.npc_sprites:
                     print(f"People of the field: {info['npcs']} of {len(gen4_sprites.NPC_FILES)}")
                 if args.follower_sprites:

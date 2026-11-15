@@ -35,6 +35,7 @@ class BuilderWindow(tk.Tk):
         self.details = tk.StringVar(value="Choose your own supported FireRed ROM to begin.")
         self.phase = tk.StringVar(value="READY")
         self.gen4 = tk.BooleanVar(value=False)
+        self.bw2 = tk.BooleanVar(value=False)
         self.npcs = tk.BooleanVar(value=False)
         self.followers = tk.BooleanVar(value=False)
         self.hd_backgrounds = tk.BooleanVar(value=False)
@@ -126,11 +127,19 @@ class BuilderWindow(tk.Tk):
             text="HeartGold sprites and icons: Pokémon, trainers and your own back "
                  "(optional, needs internet: about 1,300 small files from GitHub, checked one by one)")
         self.gen4_check.grid(row=6, column=0, sticky="w", pady=(10, 0))
+        # The other choice of battle sprites: one or the other (or neither, FireRed's own), never both.
+        self.bw2_check = ttk.Checkbutton(
+            build_card, variable=self.bw2,
+            text="Black 2 / White 2 animated Pokémon in battle, in place of HeartGold's "
+                 "(optional, needs internet: about 1,900 files, 68 MB, from GitHub, checked one by one)")
+        self.bw2_check.grid(row=7, column=0, sticky="w", pady=(4, 0))
+        self.gen4_check.configure(command=lambda: self.gen4.get() and self.bw2.set(False))
+        self.bw2_check.configure(command=lambda: self.bw2.get() and self.gen4.set(False))
         self.npcs_check = ttk.Checkbutton(
             build_card, variable=self.npcs,
             text="New people on the map: 74 characters redrawn in DS style, by Facets and its artists "
                  "(optional, needs internet)")
-        self.npcs_check.grid(row=7, column=0, sticky="w", pady=(4, 0))
+        self.npcs_check.grid(row=8, column=0, sticky="w", pady=(4, 0))
         self.followers_check = ttk.Checkbutton(
             build_card, variable=self.followers,
             text="HeartGold overworld sprites: your first Pokémon follows you and visible wild Pokémon can appear "
@@ -196,6 +205,12 @@ class BuilderWindow(tk.Tk):
             if info["missing"]:
                 line += " The others keep FireRed's pictures (no network, or a file did not match)."
             lines.append(line)
+        bw2 = info.get("bw2")
+        if bw2 and (bw2["species"] or bw2["missing"]):
+            line = "Black 2 / White 2 battle sprites: {0} of 385 species (Spinda keeps FireRed's).".format(bw2["species"])
+            if bw2["missing"]:
+                line += " The others keep FireRed's pictures (no network, or a file did not match)."
+            lines.append(line)
         if info.get("trainers"):
             lines.append("HeartGold trainer pictures: {0}.".format(info["trainers"]))
         if info.get("backs"):
@@ -211,11 +226,14 @@ class BuilderWindow(tk.Tk):
         # A ticked set whose files could not be had (no network, or a file did not match) is not a success: say so, and that
         # building again tries it again.
         for key, count_keys, name in (("heartgold", ("species",), "HeartGold battle sprites"),
+                                      ("bw2", (), "Black 2 / White 2 battle sprites"),
                                       ("npcs", ("npcs",), "New people on the map"),
                                       ("followers", ("followers",), "Overworld sprites (followers & wild Pokémon)"),
                                       ("hd_backgrounds", ("hd",), "HD battle scenes"),
                                       ("alt_looks", ("looks",), "More characters to be")):
             if options and options.get(key) and not any(info.get(k) for k in count_keys):
+                if key == "bw2" and (info.get("bw2") or {}).get("species"):
+                    continue
                 lines.append("{0}: nothing was added (no network, or a file did not match). "
                              "Build again to retry.".format(name))
         return "\n\n" + "\n".join(lines) if lines else ""
@@ -267,7 +285,7 @@ class BuilderWindow(tk.Tk):
         state = "disabled" if busy else "normal"
         for widget in (self.rom_entry, self.pack_entry, self.rom_browse,
                        self.pack_browse, self.sd_browse,
-                       self.build_button, self.gen4_check, self.npcs_check,
+                       self.build_button, self.gen4_check, self.bw2_check, self.npcs_check,
                        self.followers_check, self.hd_check, self.looks_check):
             widget.configure(state=state)
         self.cancel_button.configure(state="normal" if busy else "disabled")
@@ -286,7 +304,7 @@ class BuilderWindow(tk.Tk):
         self.details.set("Do not remove the destination drive while writing the pack.")
         # Tk variables belong to the window's thread: read here, not in the worker.
         create_directories = self._create_dirs
-        choices = dict(gen4=self.gen4.get(), npcs=self.npcs.get(),
+        choices = dict(gen4=self.gen4.get(), bw2=self.bw2.get(), npcs=self.npcs.get(),
                        followers=self.followers.get(), hd_backgrounds=self.hd_backgrounds.get(),
                        alt_looks=self.alt_looks.get())
 

@@ -80,6 +80,7 @@ def build_private_pack(
     on_progress: Stage | None = None,
     cancel: object | None = None,
     gen4: bool = False,
+    bw2: bool = False,
     npcs: bool = False,
     followers: bool = False,
     hd_backgrounds: bool = False,
@@ -115,7 +116,10 @@ def build_private_pack(
         candidate = Path(tmp) / "twinembers.pak"
         _cancel(cancel)
         sprites = None
-        groups = tuple(group for flag, group in ((gen4, gen4_sprites.GROUP_POKEMON), (npcs, gen4_sprites.GROUP_NPC),
+        if gen4 and bw2:
+            raise ValueError("Choose HeartGold's or Black 2 / White 2's battle sprites, not both.")
+        groups = tuple(group for flag, group in ((gen4, gen4_sprites.GROUP_POKEMON), (bw2, gen4_sprites.GROUP_BW2),
+                                                 (npcs, gen4_sprites.GROUP_NPC),
                                                  (followers, gen4_sprites.GROUP_FOLLOWER),
                                                  (hd_backgrounds, gen4_sprites.GROUP_HD),
                                                  (alt_looks, gen4_sprites.GROUP_LOOKS)) if flag)
@@ -217,6 +221,6 @@ def build_private_pack(
             "bytes": output_path.stat().st_size,
             "rom_sha1": rom.sha1,
             "gen4": sprites,
-            "options": {"heartgold": gen4, "npcs": npcs, "followers": followers,
+            "options": {"heartgold": gen4, "bw2": bw2, "npcs": npcs, "followers": followers,
                         "hd_backgrounds": hd_backgrounds, "alt_looks": alt_looks},
         }

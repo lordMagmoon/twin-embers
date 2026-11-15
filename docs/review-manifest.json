@@ -2450,9 +2450,9 @@
   },
   {
    "path": "builder/firered3ds_builder/cli.py",
-   "sha256": "44edce99c3f64b58cdbcf770d0b21569a119d4a4f3c153c7e8e2aaeb8265f3ef",
+   "sha256": "a6674ce9dfbeb7d1a73f04b77b902977529ebb8a2ecd60fe78fca156784c0699",
    "review_status": "reviewed",
-   "credit": "alex61194; ZallaxDev and PokÃ©mon Emerald 3Ds Dual Screen contributors for inherited/adapted portions, as scoped in NOTICE.md",
+   "credit": "alex61194; ZallaxDev and PokÃ©mon Emerald 3Ds Dual Screen contributors for inherited/adapted portions, as scoped in NOTICE.md; lordMagmoon for the Black 2 / White 2 animated sprites (disclosed AI assistance: Claude)",
    "license": "Owned port contributions MIT; inherited Zallax portions original MIT scope; external game/dependency rights excluded",
    "basis": "Pinned 96f95e0 Git blob verified; reviewed port-only text, no media/payload; inherited notices and external-game scope preserved; test fixtures synthetic",
    "source_repository": "alex61194/pokemon-firered-3ds-clean",
@@ -2460,7 +2460,8 @@
    "source_blob": "45d95d20623bc62bfcc40a24b1bf732d526f731c",
    "source_sha256": "c85f24464b260efe69e093e0667e5b0a34e701e6ad31bad239ce29991e09c913",
    "modified_for_distribution": true,
-   "sd_layout_review": "Reviewed Twin Embers SD paths, output names, safe save migration and regression coverage"
+   "sd_layout_review": "Reviewed Twin Embers SD paths, output names, safe save migration and regression coverage",
+   "bw2_sprites_review": "Black 2 / White 2 animated battle sprites (docs/BW2-SPRITES.md): optional Builder choice downloading PokeAPI/sprites GIFs pinned by commit, size and SHA-256 on the user's computer; converter, pack entries, port drawing through the HeartGold path, template guard and pause recipe 0262; no sprite, GIF or game data in the repository; synthetic tests only."
   },
   {
    "path": "builder/firered3ds_builder/gen4_followers.py",
@@ -2496,34 +2497,37 @@
   },
   {
    "path": "builder/firered3ds_builder/gen4_sprites.py",
-   "sha256": "fa9f3844dc5109aa7ce2ee4fcce19022472b9e79567c6fe813e5bad986af298a",
+   "sha256": "cd9b95019bdc85101bc892c730a7f7aed446e5b51f151f3dd6d41283835f5c66",
    "review_status": "reviewed",
-   "credit": "alex61194 (original distribution work with disclosed AI assistance)",
+   "credit": "alex61194 (original distribution work with disclosed AI assistance); lordMagmoon for the Black 2 / White 2 animated sprites (disclosed AI assistance: Claude)",
    "license": "MIT only for original owned contributions; third-party rights unchanged",
-   "basis": "Reviewed text-only source/documentation; no ROM/game payloads or generated media; synthetic fixtures only"
+   "basis": "Reviewed text-only source/documentation; no ROM/game payloads or generated media; synthetic fixtures only",
+   "bw2_sprites_review": "Black 2 / White 2 animated battle sprites (docs/BW2-SPRITES.md): optional Builder choice downloading PokeAPI/sprites GIFs pinned by commit, size and SHA-256 on the user's computer; converter, pack entries, port drawing through the HeartGold path, template guard and pause recipe 0262; no sprite, GIF or game data in the repository; synthetic tests only."
   },
   {
    "path": "builder/firered3ds_builder/gui.py",
    "review_status": "reviewed",
-   "credit": "alex61194 (original source-only offline GUI with disclosed AI assistance)",
+   "credit": "alex61194 (original source-only offline GUI with disclosed AI assistance); lordMagmoon for the Black 2 / White 2 animated sprites (disclosed AI assistance: Claude)",
    "license": "MIT for owned GUI contributions only; inherited game content and dependencies excluded",
    "basis": "Reviewed original Tk/ttk presentation, synthetic GUI regressions and Windows builder-only packaging; no game assets, ROM, pak or game binary; CLI, SHA-1, ABI, file safety and binary release gate unchanged.",
-   "sha256": "2b8bb1b184614d2d6527296b4867e6580ccbb0be8e3c2f51b5ea91d0fb5ba2c1",
+   "sha256": "63557e04e9452d1ed7411818f30da038fc589c3cf24d1cf9199ddba0127add58",
    "modified_for_distribution": true,
    "gui_review": "Remove the standalone Verify ROM GUI action and shortcut; automatic ROM validation, CLI, pack safety and data/ABI remain unchanged",
    "sd_layout_review": "Reviewed Twin Embers SD paths, output names, safe save migration and regression coverage",
-   "builder_messages": "Plain-language Builder messages for full, locked or missing destinations and a next-step hint; no change to the build, verification or replacement logic"
+   "builder_messages": "Plain-language Builder messages for full, locked or missing destinations and a next-step hint; no change to the build, verification or replacement logic",
+   "bw2_sprites_review": "Black 2 / White 2 animated battle sprites (docs/BW2-SPRITES.md): optional Builder choice downloading PokeAPI/sprites GIFs pinned by commit, size and SHA-256 on the user's computer; converter, pack entries, port drawing through the HeartGold path, template guard and pause recipe 0262; no sprite, GIF or game data in the repository; synthetic tests only."
   },
   {
    "path": "builder/firered3ds_builder/gui_service.py",
-   "sha256": "d3b0d3d2ff21375fdcb13f1a4ec39430d98c594e3bde5d2ff3847d22bac049c9",
+   "sha256": "f6b92322775a3d49a261dc178c2ae6cc0b9281aaee9bb68e0bb4f6f313344679",
    "review_status": "reviewed",
-   "credit": "alex61194 (original GUI-only source code with disclosed AI assistance)",
+   "credit": "alex61194 (original GUI-only source code with disclosed AI assistance); lordMagmoon for the Black 2 / White 2 animated sprites (disclosed AI assistance: Claude)",
    "license": "MIT for original GUI workflow only; original game and external dependencies excluded",
    "basis": "Safeguards overwrites of user-generated data packs with same-volume durable backup and automatic rollback if destination hash/size check fails.",
    "modified_for_distribution": true,
    "sd_layout_review": "Reviewed Twin Embers SD paths, output names, safe save migration and regression coverage",
-   "builder_messages": "Plain-language Builder messages for full, locked or missing destinations and a next-step hint; no change to the build, verification or replacement logic"
+   "builder_messages": "Plain-language Builder messages for full, locked or missing destinations and a next-step hint; no change to the build, verification or replacement logic",
+   "bw2_sprites_review": "Black 2 / White 2 animated battle sprites (docs/BW2-SPRITES.md): optional Builder choice downloading PokeAPI/sprites GIFs pinned by commit, size and SHA-256 on the user's computer; converter, pack entries, port drawing through the HeartGold path, template guard and pause recipe 0262; no sprite, GIF or game data in the repository; synthetic tests only."
   },
   {
    "path": "builder/firered3ds_builder/nsbtx.py",
@@ -3092,14 +3096,15 @@
   },
   {
    "path": "builder/tests/test_gui_service.py",
-   "sha256": "7d245063f71f5853a82d331e1b6397fd99b2af616b1a9d1c1f91a6a087bd105a",
+   "sha256": "d4a89418f96b1f015c388a651a6301cc1ae36fde20ada018e8ebbf508b9029b4",
    "review_status": "reviewed",
-   "credit": "alex61194 (original GUI-only source code with disclosed AI assistance)",
+   "credit": "alex61194 (original GUI-only source code with disclosed AI assistance); lordMagmoon for the Black 2 / White 2 animated sprites (disclosed AI assistance: Claude)",
    "license": "MIT for original GUI workflow only; original game and external dependencies excluded",
    "basis": "Constrain post-install corruption injection to actual final pack path; leave builder's own atomic staging untouched.",
    "modified_for_distribution": true,
    "sd_layout_review": "Reviewed Twin Embers SD paths, output names, safe save migration and regression coverage",
-   "builder_messages": "Plain-language Builder messages for full, locked or missing destinations and a next-step hint; no change to the build, verification or replacement logic"
+   "builder_messages": "Plain-language Builder messages for full, locked or missing destinations and a next-step hint; no change to the build, verification or replacement logic",
+   "bw2_sprites_review": "Black 2 / White 2 animated battle sprites (docs/BW2-SPRITES.md): optional Builder choice downloading PokeAPI/sprites GIFs pinned by commit, size and SHA-256 on the user's computer; converter, pack entries, port drawing through the HeartGold path, template guard and pause recipe 0262; no sprite, GIF or game data in the repository; synthetic tests only."
   },
   {
    "path": "builder/tests/test_gui_window.py",
@@ -6341,11 +6346,12 @@
   },
   {
    "path": "tools/build_web.py",
-   "sha256": "d86427b1d5fc30a00d9c8639dd0ef5c98aa42fca2304b95f346ddd999e744325",
+   "sha256": "f5f2fa67741bbb15d7e5cc5228959245d44f281a7e33e955c6ae3719b7f6b709",
    "review_status": "reviewed",
-   "credit": "alex61194 (original distribution work with disclosed AI assistance)",
+   "credit": "alex61194 (original distribution work with disclosed AI assistance); lordMagmoon for the Black 2 / White 2 animated sprites (disclosed AI assistance: Claude)",
    "license": "MIT only for original owned contributions; third-party rights unchanged",
-   "basis": "Reviewed text-only source/documentation; no ROM/game payloads or generated media; synthetic fixtures only"
+   "basis": "Reviewed text-only source/documentation; no ROM/game payloads or generated media; synthetic fixtures only",
+   "bw2_sprites_review": "Black 2 / White 2 animated battle sprites (docs/BW2-SPRITES.md): optional Builder choice downloading PokeAPI/sprites GIFs pinned by commit, size and SHA-256 on the user's computer; converter, pack entries, port drawing through the HeartGold path, template guard and pause recipe 0262; no sprite, GIF or game data in the repository; synthetic tests only."
   },
   {
    "path": "tools/check_asset_coverage.py",
@@ -7242,35 +7248,39 @@
   },
   {
    "path": "web/app.js",
-   "sha256": "0ff7ac4076291da10641ca3e6e32069f5e288110b1bb78a1ee77a60fc4799634",
+   "sha256": "f230851d3b3cbd0ee8c042e19b2bc87e6fa4ca0bbd29af82b7ab79089ba1d5be",
    "review_status": "reviewed",
-   "credit": "alex61194 (original distribution work with disclosed AI assistance)",
+   "credit": "alex61194 (original distribution work with disclosed AI assistance); lordMagmoon for the Black 2 / White 2 animated sprites (disclosed AI assistance: Claude)",
    "license": "MIT only for original owned contributions; third-party rights unchanged",
-   "basis": "Reviewed text-only source/documentation; no ROM/game payloads or generated media; synthetic fixtures only"
+   "basis": "Reviewed text-only source/documentation; no ROM/game payloads or generated media; synthetic fixtures only",
+   "bw2_sprites_review": "Black 2 / White 2 animated battle sprites (docs/BW2-SPRITES.md): optional Builder choice downloading PokeAPI/sprites GIFs pinned by commit, size and SHA-256 on the user's computer; converter, pack entries, port drawing through the HeartGold path, template guard and pause recipe 0262; no sprite, GIF or game data in the repository; synthetic tests only."
   },
   {
    "path": "web/de.html",
-   "sha256": "693c3bbc1c29b345e60c32b28925c4f6e652cd33f3a7f262a40393c3b028d259",
+   "sha256": "e8fe67fc521a08275862dc2f117fa46c1e7d40d2feed88dd00afe0c65ece6ddc",
    "review_status": "reviewed",
-   "credit": "alex61194 (original distribution work with disclosed AI assistance)",
+   "credit": "alex61194 (original distribution work with disclosed AI assistance); lordMagmoon for the Black 2 / White 2 animated sprites (disclosed AI assistance: Claude)",
    "license": "MIT only for original owned contributions; third-party rights unchanged",
-   "basis": "Reviewed text-only source/documentation; no ROM/game payloads or generated media; synthetic fixtures only"
+   "basis": "Reviewed text-only source/documentation; no ROM/game payloads or generated media; synthetic fixtures only",
+   "bw2_sprites_review": "Black 2 / White 2 animated battle sprites (docs/BW2-SPRITES.md): optional Builder choice downloading PokeAPI/sprites GIFs pinned by commit, size and SHA-256 on the user's computer; converter, pack entries, port drawing through the HeartGold path, template guard and pause recipe 0262; no sprite, GIF or game data in the repository; synthetic tests only."
   },
   {
    "path": "web/es.html",
-   "sha256": "fb3b5117e310acb00e0504600a88851dad7624f294560d7743709b5ff3ba972b",
+   "sha256": "e0d6420f0be4ec7a4ce9faeaba66e7178c680ef23c2fd004e1d011890772f220",
    "review_status": "reviewed",
-   "credit": "alex61194 (original distribution work with disclosed AI assistance)",
+   "credit": "alex61194 (original distribution work with disclosed AI assistance); lordMagmoon for the Black 2 / White 2 animated sprites (disclosed AI assistance: Claude)",
    "license": "MIT only for original owned contributions; third-party rights unchanged",
-   "basis": "Reviewed text-only source/documentation; no ROM/game payloads or generated media; synthetic fixtures only"
+   "basis": "Reviewed text-only source/documentation; no ROM/game payloads or generated media; synthetic fixtures only",
+   "bw2_sprites_review": "Black 2 / White 2 animated battle sprites (docs/BW2-SPRITES.md): optional Builder choice downloading PokeAPI/sprites GIFs pinned by commit, size and SHA-256 on the user's computer; converter, pack entries, port drawing through the HeartGold path, template guard and pause recipe 0262; no sprite, GIF or game data in the repository; synthetic tests only."
   },
   {
    "path": "web/index.html",
-   "sha256": "851732cb939d20ad01e9ef83c5619d29cf14e6ad7973ee5ea275a281f3a983d6",
+   "sha256": "2364a0e8c1b5887598591cdac12002a3010ed5c8333391437df9a8adbb40dfbe",
    "review_status": "reviewed",
-   "credit": "alex61194 (original distribution work with disclosed AI assistance)",
+   "credit": "alex61194 (original distribution work with disclosed AI assistance); lordMagmoon for the Black 2 / White 2 animated sprites (disclosed AI assistance: Claude)",
    "license": "MIT only for original owned contributions; third-party rights unchanged",
-   "basis": "Reviewed text-only source/documentation; no ROM/game payloads or generated media; synthetic fixtures only"
+   "basis": "Reviewed text-only source/documentation; no ROM/game payloads or generated media; synthetic fixtures only",
+   "bw2_sprites_review": "Black 2 / White 2 animated battle sprites (docs/BW2-SPRITES.md): optional Builder choice downloading PokeAPI/sprites GIFs pinned by commit, size and SHA-256 on the user's computer; converter, pack entries, port drawing through the HeartGold path, template guard and pause recipe 0262; no sprite, GIF or game data in the repository; synthetic tests only."
   },
   {
    "path": "web/style.css",
@@ -7290,11 +7300,12 @@
   },
   {
    "path": "web/worker.js",
-   "sha256": "f4cda56be4b6e520601169f02c4d9054116d7f9ef358b3be8074b5640458a30e",
+   "sha256": "eaf37124b989c72537e1739eb689f962c4aa0f95acb9ccf4514faa45ce3a3efb",
    "review_status": "reviewed",
-   "credit": "alex61194 (original distribution work with disclosed AI assistance)",
+   "credit": "alex61194 (original distribution work with disclosed AI assistance); lordMagmoon for the Black 2 / White 2 animated sprites (disclosed AI assistance: Claude)",
    "license": "MIT only for original owned contributions; third-party rights unchanged",
-   "basis": "Reviewed text-only source/documentation; no ROM/game payloads or generated media; synthetic fixtures only"
+   "basis": "Reviewed text-only source/documentation; no ROM/game payloads or generated media; synthetic fixtures only",
+   "bw2_sprites_review": "Black 2 / White 2 animated battle sprites (docs/BW2-SPRITES.md): optional Builder choice downloading PokeAPI/sprites GIFs pinned by commit, size and SHA-256 on the user's computer; converter, pack entries, port drawing through the HeartGold path, template guard and pause recipe 0262; no sprite, GIF or game data in the repository; synthetic tests only."
   },
   {
    "path": "tools/test_column_labels.py",
@@ -7415,6 +7426,38 @@
    "credit": "alex61194 (capture); game artwork belongs to Nintendo, Game Freak, Creatures and The Pokémon Company",
    "license": "Screenshot for documentation only; not covered by the port MIT licence; game artwork rights excluded",
    "basis": "Real capture of Twin Embers v0.6.0 running in AzaharPlus, made by alex61194 for the README (emulator screenshot reduced to the native 400x480 two-screen layout), added on 2026-11-14. Reviewed 2026-11-14: owner decision to keep the README images in the repository (docs/media only, well-formed PNG/JPEG/WebP, 1 MiB cap, binary attribute, byte-exact hashes); no ROM, pack or game binary."
+  },
+  {
+   "path": "builder/firered3ds_builder/gen5_sources.py",
+   "sha256": "ebbf770e16a09654f487c6351dada74aa6ea76f9e47486e0f9361889707a1fac",
+   "review_status": "reviewed",
+   "credit": "lordMagmoon (contribution with disclosed AI assistance: Claude)",
+   "license": "MIT only for original owned contributions; third-party rights unchanged",
+   "basis": "Reviewed text-only source/documentation; no ROM/game payloads or generated media; synthetic fixtures only. Black 2 / White 2 animated battle sprites (docs/BW2-SPRITES.md): optional Builder choice downloading PokeAPI/sprites GIFs pinned by commit, size and SHA-256 on the user's computer; converter, pack entries, port drawing through the HeartGold path, template guard and pause recipe 0262; no sprite, GIF or game data in the repository; synthetic tests only."
+  },
+  {
+   "path": "builder/firered3ds_builder/gen5_sprites.py",
+   "sha256": "2bf69158d1efaf7815e5015166efc81101c56dbf4073719cdb17a6db56e2c323",
+   "review_status": "reviewed",
+   "credit": "lordMagmoon (contribution with disclosed AI assistance: Claude)",
+   "license": "MIT only for original owned contributions; third-party rights unchanged",
+   "basis": "Reviewed text-only source/documentation; no ROM/game payloads or generated media; synthetic fixtures only. Black 2 / White 2 animated battle sprites (docs/BW2-SPRITES.md): optional Builder choice downloading PokeAPI/sprites GIFs pinned by commit, size and SHA-256 on the user's computer; converter, pack entries, port drawing through the HeartGold path, template guard and pause recipe 0262; no sprite, GIF or game data in the repository; synthetic tests only."
+  },
+  {
+   "path": "builder/tests/test_gen5_sprites.py",
+   "sha256": "17ac23cdcad4d498010ac87dc5df2e1582f1a889c9112b547708cb42cf5207a0",
+   "review_status": "reviewed",
+   "credit": "lordMagmoon (contribution with disclosed AI assistance: Claude)",
+   "license": "MIT only for original owned contributions; third-party rights unchanged",
+   "basis": "Reviewed text-only source/documentation; no ROM/game payloads or generated media; synthetic fixtures only. Black 2 / White 2 animated battle sprites (docs/BW2-SPRITES.md): optional Builder choice downloading PokeAPI/sprites GIFs pinned by commit, size and SHA-256 on the user's computer; converter, pack entries, port drawing through the HeartGold path, template guard and pause recipe 0262; no sprite, GIF or game data in the repository; synthetic tests only."
+  },
+  {
+   "path": "tools/make_gen5_sources.py",
+   "sha256": "9267814fa7db2899a853b60de2dabc70fc8552f7d563211a74c25f51a11aa238",
+   "review_status": "reviewed",
+   "credit": "lordMagmoon (contribution with disclosed AI assistance: Claude)",
+   "license": "MIT only for original owned contributions; third-party rights unchanged",
+   "basis": "Reviewed text-only source/documentation; no ROM/game payloads or generated media; synthetic fixtures only. Black 2 / White 2 animated battle sprites (docs/BW2-SPRITES.md): optional Builder choice downloading PokeAPI/sprites GIFs pinned by commit, size and SHA-256 on the user's computer; converter, pack entries, port drawing through the HeartGold path, template guard and pause recipe 0262; no sprite, GIF or game data in the repository; synthetic tests only."
   }
  ],
  "historical_reviews": [

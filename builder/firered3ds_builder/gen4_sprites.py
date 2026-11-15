@@ -90,7 +90,7 @@ import zlib
 from pathlib import Path
 from typing import Callable
 
-from . import gen4_followers, gen4_hd, gen4_looks, gen4_sources, nsbtx
+from . import gen4_followers, gen4_hd, gen4_looks, gen4_sources, gen5_sources, gen5_sprites, nsbtx
 
 SIZE = 80
 PICTURE = SIZE * SIZE // 2
@@ -350,7 +350,11 @@ GROUP_POKEMON, GROUP_NPC, GROUP_PLAYER, GROUP_FOLLOWER = "pokemon", "npc", "play
 GROUP_HD = "hd"     # the HD battle scenes (Bentley734's): graphics/gen4/hdn/ and hd/, each as it is in the pack
 GROUP_LOOKS = "looks"   # the alternative player looks (Emerald Lens'): graphics/gen4/look/<look>/<sheet>, for the player to pick in the game
 LOOK_SIBLINGS = {"gold_hgss": "gold", "brendan_hgss": "brendan_oras", "green_hgss": "green", "may_hgss": "may_oras"}
+# Black 2 / White 2's animated Pokemon (gen5_sprites.py): the other choice of battle sprites, in place of GROUP_POKEMON's
+GROUP_BW2 = "bw2"
 GROUPS = (GROUP_POKEMON, GROUP_NPC, GROUP_FOLLOWER, GROUP_HD, GROUP_LOOKS)   # not GROUP_PLAYER: no switch asks for it now
+# The Builder's choice of battle sprites: FireRed's own, HeartGold's (GROUP_POKEMON) or Black 2 / White 2's (GROUP_BW2).
+BATTLE_SPRITES = {"firered": (), "heartgold": (GROUP_POKEMON,), "bw2": (GROUP_BW2,)}
 # The Pokémon that walks behind the player (HeartGold's): one pack entry a national dex number (graphics/gen4/follower/NNN.bin),
 # a second one named NNN_f.bin where HeartGold has a female picture of its own. Each is a person's entry (convert_npc's
 # nine 32x32 frames), the game flipping the west frames for the east. Rows: (dex, or 1000 + dex for the female one,
@@ -1025,6 +1029,8 @@ def source_path(row: tuple) -> str:
 
 def file_name(row: tuple) -> str:
     """The name a listed file has in the cache or in a folder given for offline use."""
+    if row[1] in gen5_sprites.VARIANTS:
+        return gen5_sprites.file_name(row)
     if row[1] == "icon":
         return "icon_{:08d}.png".format(row[2])
     if row[1] == "unown":
@@ -1053,6 +1059,8 @@ def file_name(row: tuple) -> str:
 
 
 def file_url(row: tuple) -> str:
+    if row[1] in gen5_sprites.VARIANTS:
+        return URL.format(repo=gen5_sources.REPO, commit=gen5_sources.COMMIT, path=gen5_sprites.source_path(row))
     if row[1] == "back":
         return URL.format(repo=BACK_REPO, commit=BACK_COMMIT, path=source_path(row))
     if row[1] == "npc":
@@ -1084,6 +1092,8 @@ def all_files(groups: tuple = GROUPS) -> tuple:
         rows += tuple(gen4_hd.FILES)
     if GROUP_LOOKS in groups:
         rows += tuple(gen4_looks.FILES)
+    if GROUP_BW2 in groups:
+        rows += tuple(gen5_sources.FILES)
     return rows
 
 
@@ -1187,6 +1197,7 @@ def pack_files(downloader: Downloader, progress: Callable[[int, int], None] | No
     followers = [row for row in rows if row[1] == "follower"]
     hd_rows = [row for row in rows if row[1] == "hd"]
     look_rows = [row for row in rows if row[1] == "look"]
+    bw2_rows = [row for row in rows if row[1] in gen5_sprites.VARIANTS]
     rows_all = rows
     rows = [row for row in rows if row[1] in ("male", "female")]
     for dex in sorted({row[0] for row in rows}):
@@ -1289,7 +1300,13 @@ def pack_files(downloader: Downloader, progress: Callable[[int, int], None] | No
             player_files += [("%sicon_%s.4bpp" % (PLAYER_PREFIX, row[0]), tiles),
                              ("%sicon_%s.gbapal" % (PLAYER_PREFIX, row[0]), colours)]
     files += player_files
-    return files, {"species": species, "missing": missing, "icons": bool(icons), "trainers": len(trainer_files),
-                   "backs": len(back_files), "npcs": len(npc_files),
-                   "followers": len(follower_files), "hd": len(hd_files), "looks": looks_made,
-                   "player": len(player_files), "downloaded": downloaded}
+    # Black 2 / White 2's animations: each picture whose normal GIF could be had.
+    bw2_files, bw2 = gen5_sprites.pack_files(bw2_rows, got) if bw2_rows else ([], None)
+    files += bw2_files
+    info = {"species": species, "missing": missing, "icons": bool(icons), "trainers": len(trainer_files),
+            "backs": len(back_files), "npcs": len(npc_files),
+            "followers": len(follower_files), "hd": len(hd_files), "looks": looks_made,
+            "player": len(player_files), "downloaded": downloaded}
+    if bw2 is not None:
+        info["bw2"] = bw2
+    return files, info

@@ -115,6 +115,7 @@ function pythonMessage(error) {
 async function build(rom, options) {
   const groups = [];
   if (options.gen4) groups.push('pokemon');
+  if (options.bw2) groups.push('bw2');
   if (options.npcs) groups.push('npc');
   if (options.followers) groups.push('follower');
   if (options.hd) groups.push('hd');
@@ -143,7 +144,7 @@ self.onmessage = async (event) => {
   const message = event.data;
   if (message.type !== 'build') return;
   try {
-    await build(message.rom, { gen4: message.gen4, npcs: message.npcs,
+    await build(message.rom, { gen4: message.gen4, bw2: message.bw2, npcs: message.npcs,
       followers: message.followers, hd: message.hd, looks: message.looks });
   } catch (error) {
     try { clearWork(); } catch (ignored) { /* nothing left to clean */ }
